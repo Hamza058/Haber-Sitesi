@@ -18,7 +18,7 @@ namespace DataAccessLayer.Concrete
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             if (!optionsBuilder.IsConfigured)
-                optionsBuilder.UseSqlServer("Server=HKILIC\\SQLEXPRESS; Database=DbBootCampProject; Integrated Security=True;");
+                optionsBuilder.UseSqlServer("Server=.\\SQLEXPRESS; Database=DbBootCampProject; Integrated Security=True;");
         }
     }
 }

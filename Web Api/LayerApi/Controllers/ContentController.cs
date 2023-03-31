@@ -23,77 +23,25 @@ namespace LayerApi.Controllers
         [HttpGet]
         public IActionResult Get()
         {
-            //Statu true olanları döndürür
-            var content = cm.GetList().Where(x => x.ContentStatus == true);
-            var heading = hm.GetList();
-            var category = ctm.GetList();
-            var writer = wm.GetList();
-
-            string[] contentID = new string[content.Count()];
-            string[] contentValue = new string[content.Count()];
-            string[] contentHeading = new string[content.Count()];
-            string[] contentDate = new string[content.Count()];
-            string[] contentCategory = new string[content.Count()];
-            string[] contentImage = new string[content.Count()];
-            string[] contentWriter = new string[content.Count()];
-            string[] contentWriterImage = new string[content.Count()];
-
-            int i = 0;
-            foreach (var item in content)
-            {
-                contentID[i] = item.ContentID.ToString();
-                contentValue[i] = item.ContentValue;
-                contentImage[i] = item.ContentImage;
-                contentHeading[i] = heading.First(x => x.HeadingID == item.HeadingID).HeadingName;
-                contentWriter[i] = writer.First(x => x.WriterID == item.WriterID).WriterName;
-                contentWriterImage[i] = writer.First(x => x.WriterID == item.WriterID).WriterImage;
-                contentDate[i] = item.ContentDate.ToString("dd-MMM-yyyy");
-                contentCategory[i] = category.First(x => x.CategoryID == heading.First(x => x.HeadingID == item.HeadingID).CategoryID).CategoryName;
-                i++;
-            }
-            Dictionary<string, Array> results = new Dictionary<string, Array>();
-            results.Add("id", contentID);
-            results.Add("resim", contentImage);
-            results.Add("kategory", contentCategory);
-            results.Add("tarih", contentDate);
-            results.Add("baslik", contentHeading);
-            results.Add("icerik", contentValue);
-            results.Add("yazarResmi", contentWriterImage);
-            results.Add("yazar", contentWriter);
-
-            return Ok(results);
+            var content = cm.GetWithHeading().Where(x => x.ContentStatus).OrderByDescending(x=>x.ContentDate).ToList();
+            return Ok(content);
         }
         [HttpGet("{id}")]
         public IActionResult Get(int id)
         {
-            var contentValues = cm.GetByID(id);
-            var heading = hm.GetByID(Convert.ToInt16(contentValues.HeadingID));
-            var category = ctm.GetByID(heading.CategoryID).CategoryName;
-            var writer = wm.GetByID(Convert.ToInt16(contentValues.WriterID));
-            var wrName = writer.WriterName + " " + writer.WriterSurName;
-            var wrImg = writer.WriterImage;
+            var contentValues = cm.GetWithHeading().FirstOrDefault(x=>x.ContentID== id);
 
-            Dictionary<string, string> results = new Dictionary<string, string>();
-
-            results.Add("tarih", contentValues.ContentDate.ToString("dd-MMM-yyyy"));
-            results.Add("aciklama", contentValues.ContentValue);
-            results.Add("resim", contentValues.ContentImage);
-            results.Add("baslik", heading.HeadingName);
-            results.Add("kategori", category);
-            results.Add("yazar", wrName);
-            results.Add("yazarResmi", wrImg);
-
-            return Ok(results);
+            return Ok(contentValues);
         }
 
         [HttpPost]
         public IActionResult Add(Value value)
         {
             Heading heading = new Heading();
-            heading.HeadingName = value.HeadingName;
+            heading.HeadingName = value.HeadingValue;
             heading.HeadingDate = DateTime.Now;
-            heading.CategoryID = ctm.GetList().FirstOrDefault(x => x.CategoryName == value.CategoryName).CategoryID;
-            heading.WriterID = wm.GetList().FirstOrDefault(x => x.WriterMail == value.WriterMail).WriterID;
+            heading.CategoryID = ctm.GetList().FirstOrDefault(x => x.CategoryName == value.CategoryValue).CategoryID;
+            heading.WriterID = wm.GetList().FirstOrDefault(x => x.WriterMail == value.WriterValue).WriterID;
             heading.HeadingStatus = true;
             hm.HeadingAdd(heading);
 
@@ -102,7 +50,6 @@ namespace LayerApi.Controllers
             content.ContentDate = DateTime.Now;
             content.ContentImage = value.ContentImage;
             content.HeadingID = heading.HeadingID;
-            content.WriterID = heading.WriterID;
             cm.ContentAdd(content);
 
             return Ok("Başarıyla Eklendi");

@@ -60,10 +60,9 @@ namespace DataAccessLayer.Migrations
                     b.Property<int>("HeadingID")
                         .HasColumnType("int");
 
-                    b.Property<int?>("WriterID")
-                        .HasColumnType("int");
-
                     b.HasKey("ContentID");
+
+                    b.HasIndex("HeadingID");
 
                     b.ToTable("Contents");
                 });
@@ -91,6 +90,10 @@ namespace DataAccessLayer.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("HeadingID");
+
+                    b.HasIndex("CategoryID");
+
+                    b.HasIndex("WriterID");
 
                     b.ToTable("Headings");
                 });
@@ -132,6 +135,51 @@ namespace DataAccessLayer.Migrations
                     b.HasKey("WriterID");
 
                     b.ToTable("Writers");
+                });
+
+            modelBuilder.Entity("EntityLayer.Concrete.Content", b =>
+                {
+                    b.HasOne("EntityLayer.Concrete.Heading", "Heading")
+                        .WithMany("Contents")
+                        .HasForeignKey("HeadingID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Heading");
+                });
+
+            modelBuilder.Entity("EntityLayer.Concrete.Heading", b =>
+                {
+                    b.HasOne("EntityLayer.Concrete.Category", "Category")
+                        .WithMany("Headings")
+                        .HasForeignKey("CategoryID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("EntityLayer.Concrete.Writer", "Writer")
+                        .WithMany("Headings")
+                        .HasForeignKey("WriterID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Category");
+
+                    b.Navigation("Writer");
+                });
+
+            modelBuilder.Entity("EntityLayer.Concrete.Category", b =>
+                {
+                    b.Navigation("Headings");
+                });
+
+            modelBuilder.Entity("EntityLayer.Concrete.Heading", b =>
+                {
+                    b.Navigation("Contents");
+                });
+
+            modelBuilder.Entity("EntityLayer.Concrete.Writer", b =>
+                {
+                    b.Navigation("Headings");
                 });
 #pragma warning restore 612, 618
         }

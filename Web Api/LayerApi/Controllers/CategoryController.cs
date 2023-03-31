@@ -21,8 +21,6 @@ namespace LayerApi.Controllers
         public IActionResult Get()
         {
             var categoryValues = cm.GetList().Where(x => x.CategoryStatus);
-            //Statu true olanları döndürür
-            //var categoryValues = cm.GetList().Where(x => x.CategoryStatus);
             return Ok(categoryValues);
         }
         [HttpPut("{id}")]

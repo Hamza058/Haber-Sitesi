@@ -42,5 +42,10 @@ namespace BusinessLayer.Concrete
         {
             return _contentDal.List();
         }
-    }
+
+		public List<Content> GetWithHeading()
+		{
+            return _contentDal.GetListWithHeading();
+		}
+	}
 }
